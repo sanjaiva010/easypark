@@ -75,31 +75,34 @@
   /* Isometric 3D toy-car (sits flat on the CSS-3D lot floor) */
   /* Parked-car illustration (plan view, extruded for a 3D look).
      Sits flat on the CSS-3D lot floor like a top-down camera view. */
+  /* Proper top-down car (Material "directions_car" glyph, restyled).
+     Plain sliver of a real car image: silhouette from the free Material
+     icon set, recolored, with glass canopy + tires overlays. */
   function car3D() {
-    return '<svg class="car3d" viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    return '<svg class="car3d" viewBox="0 -960 960 960" width="150" height="150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       '<defs>' +
-      '<filter id="carShadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>' +
-      '<linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d58d2"/><stop offset="0.55" stop-color="#1b2c98"/><stop offset="1" stop-color="#081244"/></linearGradient>' +
+      '<filter id="carShadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="14"/></filter>' +
+      '<linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a66e0"/><stop offset="0.5" stop-color="#1b2c98"/><stop offset="1" stop-color="#081244"/></linearGradient>' +
+      '<linearGradient id="carSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>' +
+      '<linearGradient id="carGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef5ff"/><stop offset="0.5" stop-color="#a3c0ff"/><stop offset="1" stop-color="#6a88ef"/></linearGradient>' +
       '<linearGradient id="carRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6edff"/><stop offset="1" stop-color="#93b1ff"/></linearGradient>' +
-      '<linearGradient id="carGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef5ff"/><stop offset="0.5" stop-color="#adc9ff"/><stop offset="1" stop-color="#7ea2f0"/></linearGradient>' +
+      '<mask id="carMask" maskUnits="userSpaceOnUse" x="0" y="-960" width="960" height="960"><path d="M200-204v54q0 12.75-8.62 21.37Q182.75-120 170-120h-20q-12.75 0-21.37-8.63Q120-137.25 120-150v-324l85-256q5-14 16.5-22t26.5-8h464q15 0 26.5 8t16.5 22l85 256v324q0 12.75-8.62 21.37Q822.75-120 810-120h-21q-13 0-21-8.63-8-8.62-8-21.37v-54H200Zm3-330h554l-55-166H258l-55 166Zm-23 60v210-210Zm105.76 160q23.24 0 38.74-15.75Q340-345.5 340-368q0-23.33-15.75-39.67Q308.5-424 286-424q-23.33 0-39.67 16.26Q230-391.47 230-368.24q0 23.24 16.26 38.74 16.27 15.5 39.5 15.5ZM675-314q23.33 0 39.67-15.75Q731-345.5 731-368q0-23.33-16.26-39.67Q698.47-424 675.24-424q-23.24 0-38.74 16.26-15.5 16.27-15.5 39.5 0 23.24 15.75 38.74Q652.5-314 675-314Zm-495 50h600v-210H180v210Z" fill="#fff"/></mask>' +
       '</defs>' +
-      '<ellipse cx="47" cy="79" rx="40" ry="16" fill="#02103f" opacity="0.35" filter="url(#carShadow)"/>' +
-      '<rect x="16" y="22" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
-      '<rect x="16" y="65" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
-      '<rect x="69" y="22" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
-      '<rect x="69" y="65" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
-      '<rect x="22" y="12" width="54" height="80" rx="16" fill="#060e3a"/>' +
-      '<rect x="20" y="10" width="54" height="80" rx="16" fill="url(#carBody)" stroke="#071050" stroke-width="1.4"/>' +
-      '<path d="M28 19 Q 47 12 66 19" stroke="rgba(255,255,255,.55)" stroke-width="2.4" stroke-linecap="round" fill="none"/>' +
-      '<path d="M30 69 L64 69" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-linecap="round"/>' +
-      '<polygon points="32,32 62,32 66,44 28,44" fill="url(#carGlass)" stroke="#071050" stroke-width="1.1"/>' +
-      '<path d="M32 34 L44 31" stroke="rgba(255,255,255,.9)" stroke-width="2.4" stroke-linecap="round"/>' +
-      '<rect x="31" y="44" width="32" height="14" rx="5" fill="url(#carRoof)" stroke="#27409f" stroke-width="1"/>' +
-      '<polygon points="30,58 64,58 67,68 27,68" fill="url(#carGlass)" stroke="#071050" stroke-width="1.1"/>' +
-      '<rect x="23" y="12" width="9" height="4" rx="2" fill="#fff1b8"/>' +
-      '<rect x="62" y="12" width="9" height="4" rx="2" fill="#fff1b8"/>' +
-      '<rect x="23" y="86" width="9" height="4" rx="2" fill="#ff5a5a"/>' +
-      '<rect x="62" y="86" width="9" height="4" rx="2" fill="#ff5a5a"/>' +
+      '<ellipse cx="480" cy="-70" rx="400" ry="104" fill="#02103f" opacity="0.3" filter="url(#carShadow)"/>' +
+      '<g transform="rotate(180 480 -480)">' +
+      '<rect x="90" y="-830" width="800" height="850" fill="url(#carBody)" mask="url(#carMask)"/>' +
+      '<rect x="90" y="-830" width="800" height="850" fill="url(#carSheen)" mask="url(#carMask)"/>' +
+      '<path d="M203 -480 L757 -480 L702 -646 L258 -646 Z" fill="url(#carGlass)" stroke="#071050" stroke-width="6" stroke-linejoin="round"/>' +
+      '<rect x="256" y="-590" width="448" height="62" rx="16" fill="url(#carRoof)" stroke="#071050" stroke-width="5"/>' +
+      '<rect x="230" y="-424" width="110" height="110" rx="22" fill="#0c1330" stroke="#27409f" stroke-width="6"/>' +
+      '<rect x="636" y="-424" width="110" height="110" rx="22" fill="#0c1330" stroke="#27409f" stroke-width="6"/>' +
+      '<rect x="252" y="-402" width="66" height="66" rx="16" fill="#5a6bb0"/>' +
+      '<rect x="658" y="-402" width="66" height="66" rx="16" fill="#5a6bb0"/>' +
+      '<rect x="228" y="-760" width="56" height="18" rx="5" fill="#9fd0ff"/>' +
+      '<rect x="676" y="-760" width="56" height="18" rx="5" fill="#9fd0ff"/>' +
+      '<rect x="228" y="-128" width="56" height="18" rx="5" fill="#ff5a5a"/>' +
+      '<rect x="676" y="-128" width="56" height="18" rx="5" fill="#ff5a5a"/>' +
+      '</g>' +
       '</svg>';
   }
 

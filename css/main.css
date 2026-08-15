@@ -909,7 +909,8 @@ a:hover { color: var(--imperial-blue-light); }
 .spot {
   width: 168px; height: 198px; position: relative;
   border-radius: 14px; border: 2px dashed rgba(2,31,148,.3);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 3px; padding-top: 12px;
   cursor: pointer; transition: transform .3s ease, box-shadow .3s ease, filter .3s;
   box-shadow: 0 12px 20px rgba(2,31,148,.12);
 }
@@ -930,10 +931,11 @@ a:hover { color: var(--imperial-blue-light); }
 .spot-maintenance .spot-label { color: #6b7280; }
 
 .spot-car {
-  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+  position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
   display: grid; place-items: center; z-index: 1; pointer-events: none;
+  filter: drop-shadow(0 8px 6px rgba(2,31,148,.3));
 }
-.spot-car svg { width: 108px; height: auto; }
+.spot-car svg { width: 132px; height: 132px; }
 .spot-flag {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   background: linear-gradient(135deg,#fbbf24,#d97706); color: #fff;
@@ -1091,7 +1093,7 @@ a:hover { color: var(--imperial-blue-light); }
   .portal-options { flex-direction: column; }
   .hero-stats { flex-wrap: wrap; gap: 1.2rem; }
   .spot { width: 132px; height: 162px; }
-  .spot-car svg { width: 84px; }
+  .spot-car svg { width: 104px; height: 104px; }
   .spot-id { font-size: 1.1rem; }
   .lot-scene { padding-left: .4rem; padding-right: .4rem; }
 }
