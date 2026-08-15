@@ -72,6 +72,37 @@
     return '<svg width="' + (size || 18) + '" height="' + (size || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
   }
 
+  /* Isometric 3D toy-car (sits flat on the CSS-3D lot floor) */
+  /* Parked-car illustration (plan view, extruded for a 3D look).
+     Sits flat on the CSS-3D lot floor like a top-down camera view. */
+  function car3D() {
+    return '<svg class="car3d" viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<defs>' +
+      '<filter id="carShadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>' +
+      '<linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d58d2"/><stop offset="0.55" stop-color="#1b2c98"/><stop offset="1" stop-color="#081244"/></linearGradient>' +
+      '<linearGradient id="carRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6edff"/><stop offset="1" stop-color="#93b1ff"/></linearGradient>' +
+      '<linearGradient id="carGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef5ff"/><stop offset="0.5" stop-color="#adc9ff"/><stop offset="1" stop-color="#7ea2f0"/></linearGradient>' +
+      '</defs>' +
+      '<ellipse cx="47" cy="79" rx="40" ry="16" fill="#02103f" opacity="0.35" filter="url(#carShadow)"/>' +
+      '<rect x="16" y="22" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
+      '<rect x="16" y="65" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
+      '<rect x="69" y="22" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
+      '<rect x="69" y="65" width="9" height="15" rx="4.5" fill="#0a0f2c" stroke="#22305f" stroke-width="1"/>' +
+      '<rect x="22" y="12" width="54" height="80" rx="16" fill="#060e3a"/>' +
+      '<rect x="20" y="10" width="54" height="80" rx="16" fill="url(#carBody)" stroke="#071050" stroke-width="1.4"/>' +
+      '<path d="M28 19 Q 47 12 66 19" stroke="rgba(255,255,255,.55)" stroke-width="2.4" stroke-linecap="round" fill="none"/>' +
+      '<path d="M30 69 L64 69" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-linecap="round"/>' +
+      '<polygon points="32,32 62,32 66,44 28,44" fill="url(#carGlass)" stroke="#071050" stroke-width="1.1"/>' +
+      '<path d="M32 34 L44 31" stroke="rgba(255,255,255,.9)" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<rect x="31" y="44" width="32" height="14" rx="5" fill="url(#carRoof)" stroke="#27409f" stroke-width="1"/>' +
+      '<polygon points="30,58 64,58 67,68 27,68" fill="url(#carGlass)" stroke="#071050" stroke-width="1.1"/>' +
+      '<rect x="23" y="12" width="9" height="4" rx="2" fill="#fff1b8"/>' +
+      '<rect x="62" y="12" width="9" height="4" rx="2" fill="#fff1b8"/>' +
+      '<rect x="23" y="86" width="9" height="4" rx="2" fill="#ff5a5a"/>' +
+      '<rect x="62" y="86" width="9" height="4" rx="2" fill="#ff5a5a"/>' +
+      '</svg>';
+  }
+
   /* ------------------------------------------------------------------
      2. Toasts
   ------------------------------------------------------------------ */
@@ -309,7 +340,7 @@
                   '<span class="spot-label">' + EP.SLOT_STATUSES[s.status].label + '</span>';
 
       if (s.status === 'occupied') {
-        inner += '<span class="spot-car"><span class="car-hood"></span><span class="car-roof"></span></span>';
+        inner += '<span class="spot-car">' + car3D() + '</span>';
       } else if (s.status === 'reserved') {
         inner += '<span class="spot-flag">' +
           (s.reservation ? esc(s.reservation.name.split(' ')[0]) + ' · ' + EP.fmtTime(s.reservation.start)

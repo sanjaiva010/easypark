@@ -789,7 +789,7 @@ a:hover { color: var(--imperial-blue-light); }
 .portal-btn .p-user   { background: linear-gradient(135deg,#34d399,#059669); }
 .portal-btn .p-admin  { background: linear-gradient(135deg,#fbbf24,#d97706); }
 .portal-btn:hover .p-icon { filter: saturate(1.1) brightness(1.05); }
-.portal-btn b { display: block; font-size: 1.05rem; margin-bottom: .2rem; }
+.portal-btn b { font-size: 1.25rem; font-weight: 700; margin: 0; letter-spacing: .02em; }
 .portal-btn small { font-size: .78rem; opacity: .85; display: block; line-height: 1.4; }
 .portal-btn:hover small { opacity: .8; }
 .portal-btn .p-arrow { margin-left: auto; font-size: 1.3rem; opacity: .7; }
@@ -930,14 +930,10 @@ a:hover { color: var(--imperial-blue-light); }
 .spot-maintenance .spot-label { color: #6b7280; }
 
 .spot-car {
-  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
-  width: 94px; height: 130px;
-  background: linear-gradient(180deg,#22368f,#021F94 55%,#010e45);
-  border-radius: 22px 22px 12px 12px;
-  box-shadow: 0 10px 0 0 rgba(0,0,0,.16), 0 14px 20px rgba(2,31,148,.35);
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+  display: grid; place-items: center; z-index: 1; pointer-events: none;
 }
-.spot-car .car-roof { position: absolute; left: 18px; top: 30px; width: 58px; height: 58px; background: rgba(255,255,255,.88); border-radius: 16px; }
-.spot-car .car-hood { position: absolute; left: 10px; bottom: 22px; width: 74px; height: 22px; background: rgba(255,255,255,.14); border-radius: 10px; }
+.spot-car svg { width: 108px; height: auto; }
 .spot-flag {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   background: linear-gradient(135deg,#fbbf24,#d97706); color: #fff;
@@ -1095,9 +1091,7 @@ a:hover { color: var(--imperial-blue-light); }
   .portal-options { flex-direction: column; }
   .hero-stats { flex-wrap: wrap; gap: 1.2rem; }
   .spot { width: 132px; height: 162px; }
-  .spot-car { width: 74px; height: 106px; }
-  .spot-car .car-roof { left: 14px; top: 26px; width: 46px; height: 46px; }
-  .spot-car .car-hood { left: 8px; bottom: 18px; width: 58px; height: 18px; }
+  .spot-car svg { width: 84px; }
   .spot-id { font-size: 1.1rem; }
   .lot-scene { padding-left: .4rem; padding-right: .4rem; }
 }
