@@ -181,7 +181,7 @@
     const header = el('header', 'app-nav');
     header.innerHTML =
       '<div class="app-nav-inner">' +
-        '<a class="brand" href="' + (portal === 'admin' ? 'dashboard.html' : 'dashboard.html') + '">' +
+        '<a class="brand" href="' + (portal === 'admin' ? '../../index.html' : 'dashboard.html') + '">' +
           '<span class="brand-mark">EP</span>' +
           '<span class="brand-name script-text">EasyPark</span>' +
           '<span class="brand-tag">' + (portal === 'admin' ? 'Management Console' : 'Parking Portal') + '</span>' +
@@ -361,6 +361,30 @@
 
     container.appendChild(scene);
     return scene;
+  }
+
+  /* Scales a rendered `.lot-floor` down so the whole floor fits its
+     `.lot-scene` container with no horizontal scrolling. */
+  function fitFloor(scene) {
+    if (!scene) return;
+    const floorEl = scene.querySelector('.lot-floor');
+    if (!floorEl) return;
+    const fit = () => {
+      const avail = scene.clientWidth;
+      const need = floorEl.scrollWidth;
+      const s = (avail > 0 && need > avail) ? avail / need : 1;
+      if (s < 1) {
+        floorEl.style.transform = 'rotateX(54deg) rotateZ(-7deg) scale(' + s + ')';
+        floorEl.style.transformOrigin = '50% 0%';
+        scene.style.overflowX = 'hidden';
+      } else {
+        floorEl.style.transform = '';
+        floorEl.style.transformOrigin = '';
+        scene.style.overflowX = 'auto';
+      }
+    };
+    fit();
+    window.addEventListener('resize', fit);
   }
 
   /* ------------------------------------------------------------------
@@ -562,7 +586,7 @@
 
   window.UI = {
     esc, el, qs, qsa, icon, toast, openModal, confirmModal,
-    injectNav, requireAdmin, renderFloor, renderLegend,
+    injectNav, requireAdmin, renderFloor, renderLegend, fitFloor,
     donut, bars, hbars, lineChart, statCard, refreshNavUser
   };
 

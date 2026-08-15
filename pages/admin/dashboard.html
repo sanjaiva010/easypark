@@ -100,6 +100,8 @@
         };
         UI.renderFloor(UI.qs('#lot-ground'), 'ground', { onSlot: handler });
         UI.renderFloor(UI.qs('#lot-first'), 'first', { onSlot: handler });
+        UI.fitFloor(UI.qs('#lot-ground'));
+        UI.fitFloor(UI.qs('#lot-first'));
         UI.renderLegend(UI.qs('#legend'));
       }
 
