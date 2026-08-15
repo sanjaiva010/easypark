@@ -146,6 +146,8 @@
       // Hero mini-lots (read-only render of both levels).
       UI.renderFloor(UI.qs('#hero-lot-ground'), 'ground');
       UI.renderFloor(UI.qs('#hero-lot-first'), 'first');
+      UI.fitFloor(UI.qs('#hero-lot-ground'));
+      UI.fitFloor(UI.qs('#hero-lot-first'));
 
       // Live counters.
       const render = () => {
