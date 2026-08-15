@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics | EasyPark Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="admin">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">Admin Portal · Analytics</p>
+    <h1><svg class="head-ico big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Analytics</h1>
+    <p class="sub">Usage insights generated live from the reservation and maintenance data.</p>
+  </div>
+
+  <div class="content">
+    <div class="stat-grid mb-4" id="stat-chips"></div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Occupancy percentage</h3>
+        <p class="sub">Share of spots currently occupied / in use</p>
+        <div id="chart-occ"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Occupancy trend</h3>
+        <p class="sub">Last 7 days, percentage of spots in use</p>
+        <div id="chart-occ-line"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Reservations per day</h3>
+        <p class="sub">Booking volume — last 7 days</p>
+        <div id="chart-res-day"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Most frequently reserved spots</h3>
+        <p class="sub">Approved + completed reservations, all time</p>
+        <div id="chart-top-slots"></div>
+      </div>
+
+      <div class="chart-card" style="grid-column:1 / -1">
+        <h3>Maintenance frequency by component</h3>
+        <p class="sub">How often each hardware part reports a fault</p>
+        <div id="chart-maint"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      if (!UI.requireAdmin()) return;
+
+      const C = {
+        blue: '#021F94', green: '#10B981', red: '#EF4444',
+        amber: '#F59E0B', gray: '#9CA3AF', violet: '#6366F1'
+      };
+
+      /* ---------- header chips ---------- */
+      function renderChips() {
+        const all = EP.getReservations();
+        const st = EP.getStats();
+        const active = all.filter(r => r.status === 'approved').length;
+        const pending = all.filter(r => r.status === 'pending').length;
+        const open = EP.getIssues().filter(i => i.open).length;
+        const cards = [
+          UI.statCard('Total reservations', all.length, 'list', 'blue'),
+          UI.statCard('Approved', active, 'check', 'green'),
+          UI.statCard('Pending approval', pending, 'clock', 'amber'),
+          UI.statCard('Open faults', open, 'alert', 'red'),
+          UI.statCard('Occupancy now', Math.round(st.occupied / st.total * 100) + '%', 'car', 'gray')
+        ];
+        const grid = UI.qs('#stat-chips');
+        grid.innerHTML = '';
+        cards.forEach(c => grid.appendChild(c));
+      }
+
+      /* ---------- charts ---------- */
+      function renderCharts() {
+        const st = EP.getStats();
+
+        // 1. Occupancy donut (status distribution).
+        UI.donut(UI.qs('#chart-occ'), [
+          { label: 'Occupied', value: st.occupied, color: C.red },
+          { label: 'Available', value: st.available, color: C.green },
+          { label: 'Reserved', value: st.reserved, color: C.amber },
+          { label: 'Maintenance', value: st.maintenance, color: C.gray }
+        ], {
+          size: 200,
+          centerValue: st.occupied,
+          sub: 'spots occupied now'
+        });
+
+        // 2. Occupancy trend (simulated historical series).
+        const occSeries = EP.occupancySeries(7);
+        UI.lineChart(UI.qs('#chart-occ-line'), occSeries.map(d => ({
+          label: new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' }),
+          value: d.pct
+        })), { height: 260, color: C.blue });
+
+        // 3. Reservations per day.
+        const perDay = EP.reservationsPerDay(7);
+        const maxDay = Math.max.apply(null, perDay.map(d => d.count));
+        UI.bars(UI.qs('#chart-res-day'), perDay.map(d => ({
+          label: new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' }),
+          value: d.count,
+          highlight: d.count === maxDay
+        })), { height: 260, color: C.blue });
+
+        // 4. Most reserved spots.
+        UI.hbars(UI.qs('#chart-top-slots'), EP.mostReservedSlots(8), { color: C.blue });
+
+        // 5. Maintenance frequency by component.
+        UI.hbars(UI.qs('#chart-maint'), EP.maintenanceFrequency(), { color: C.red });
+      }
+
+      function refresh() {
+        renderChips();
+        renderCharts();
+      }
+      refresh();
+      window.EasyParkLiveRefresh = refresh;
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Reservations | EasyPark User Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="user">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">User Portal · My Reservations</p>
+    <h1>My Reservations</h1>
+    <p class="sub">Your bookings across the prototype — cancel any before its start time.</p>
+  </div>
+
+  <div class="content">
+    <div class="panel">
+      <div class="panel-head">
+        <h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Booking history</h2>
+        <span class="muted" id="count-line"></span>
+      </div>
+      <div class="panel-body">
+        <div id="phone-hint" class="mb-4" style="display:none">
+          <label class="form-label">Enter the phone number used when booking</label>
+          <div class="flex gap-3" style="max-width:420px">
+            <input class="form-input" id="phone-search" placeholder="e.g. 98200 11223">
+            <button class="btn btn-secondary" id="phone-go">Find</button>
+          </div>
+        </div>
+        <div id="res-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      let phone = EP.getUserSession() ? EP.getUserSession().phone : '';
+
+      // Guest path — ask for the phone used at booking.
+      if (!phone) UI.qs('#phone-hint').style.display = 'block';
+      UI.qs('#phone-go').addEventListener('click', () => {
+        phone = UI.qs('#phone-search').value.trim();
+        render();
+      });
+
+      const STATUS_BADGE = {
+        pending: 'badge-pending', approved: 'badge-approved',
+        cancelled: 'badge-cancelled', completed: 'badge-completed'
+      };
+
+      function render() {
+        const list = EP.getUserReservations(phone);
+        UI.qs('#count-line').textContent = list.length + ' booking' + (list.length === 1 ? '' : 's');
+        const box = UI.qs('#res-list');
+
+        if (!list.length) {
+          box.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>' +
+            '<p>No reservations found for this phone number.</p>' +
+            '<button class="btn btn-primary mt-4" onclick="location.href=\'reserve.html\'">Reserve a Spot</button></div>';
+          return;
+        }
+
+        box.innerHTML = '';
+        list.forEach(r => {
+          const canCancel = EP.canUserCancel(r);
+          const card = UI.el('div', 'panel mb-4');
+          card.innerHTML =
+            '<div class="panel-body">' +
+              '<div class="flex justify-between items-center" style="flex-wrap:wrap; gap:.75rem">' +
+                '<div>' +
+                  '<div class="flex items-center gap-3" style="flex-wrap:wrap">' +
+                    '<b class="mono" style="font-size:1.05rem">' + UI.esc(r.id) + '</b>' +
+                    '<span class="badge ' + STATUS_BADGE[r.status] + '">' + r.status + '</span>' +
+                    '<span class="chip">Spot ' + r.slot + '</span>' +
+                  '</div>' +
+                  '<p class="text-muted mt-2" style="margin:0; font-size:.85rem">' +
+                    UI.esc(r.name) + ' · ' + UI.esc(r.vehicle) + ' · ' + EP.fmtDate(r.date) + ' · ' +
+                    EP.fmtTime(r.start) + ' (' + r.duration + 'h)</p>' +
+                '</div>' +
+                '<div class="flex gap-3" style="align-items:center">' +
+                  (canCancel
+                    ? '<button class="btn btn-danger btn-sm" data-cancel="' + r.id + '">Cancel reservation</button>'
+                    : (r.status === 'pending' || r.status === 'approved'
+                        ? '<span class="text-muted" style="font-size:.75rem">No longer cancellable</span>' : '')) +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          box.appendChild(card);
+        });
+
+        // Wire cancel buttons.
+        UI.qsa('[data-cancel]', box).forEach(btn => btn.addEventListener('click', () => {
+          const rid = btn.dataset.cancel;
+          UI.confirmModal('Cancel reservation ' + rid + '? This cannot be undone.',
+            () => {
+              EP.cancelReservation(rid, 'user');
+              UI.toast('Reservation ' + rid + ' cancelled', 'success');
+              render();
+            }, { title: 'Cancel reservation' });
+        }));
+      }
+
+      render();
+      window.EasyParkLiveRefresh = render;
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Room | EasyPark Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="admin">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">Admin Portal · Control Room</p>
+    <h1><svg class="head-ico big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8M12 17v4"/></svg>Parking Control Room</h1>
+    <p class="sub">Live view of every spot in the prototype. Click a spot to simulate the IR sensor (vehicle in / out).</p>
+  </div>
+
+  <div class="content">
+    <!-- Stat cards -->
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="mt-6 layout-2col">
+      <!-- Live layout: both levels -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Live parking layout</h2>
+          <span class="muted">tap a spot to toggle presence (sensor demo)</span>
+        </div>
+        <div class="panel-body">
+          <div class="mb-2 text-muted" style="font-size:.8rem; font-weight:700">GROUND FLOOR</div>
+          <div id="lot-ground"></div>
+          <hr class="divider">
+          <div class="mb-2 text-muted" style="font-size:.8rem; font-weight:700">FIRST FLOOR</div>
+          <div id="lot-first"></div>
+          <div class="mt-4"><div id="legend"></div></div>
+        </div>
+      </section>
+
+      <!-- Side column -->
+      <aside class="flex flex-col gap-4">
+        <section class="panel">
+          <div class="panel-head">
+            <h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications</h2>
+            <button class="btn btn-ghost btn-sm" id="mark-read">Mark all read</button>
+          </div>
+          <div class="panel-body"><div class="notif-list" id="notif-list"></div></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Recent reservations</h2>
+            <a class="btn btn-ghost btn-sm" href="reservations.html">View all →</a>
+          </div>
+          <div class="panel-body"><div id="recent-res"></div></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      if (!UI.requireAdmin()) return;
+
+      /* ---------- stats ---------- */
+      function renderStats() {
+        const st = EP.getStats();
+        const cards = [
+          UI.statCard('Total spots', st.total, 'grid', 'blue'),
+          UI.statCard('Available', st.available, 'check', 'green'),
+          UI.statCard('Occupied', st.occupied, 'car', 'red', 'IR sensor'),
+          UI.statCard('Reserved', st.reserved, 'calendar', 'amber', 'approved today'),
+          UI.statCard('Maintenance', st.maintenance, 'gear', 'gray', 'fault tickets')
+        ];
+        const grid = UI.qs('#stat-grid');
+        grid.innerHTML = '';
+        cards.forEach(c => grid.appendChild(c));
+      }
+
+      /* ---------- live lots (click = simulate sensor pulse) ---------- */
+      function renderLots() {
+        const handler = (id, slot) => {
+          if (slot.status !== 'available' && slot.status !== 'occupied') {
+            UI.toast('Spot ' + id + ' is ' + slot.status + ' — presence locked', 'warning');
+            return;
+          }
+          const updated = EP.togglePresence(id);
+          if (updated) {
+            UI.toast('Sensor pulse on spot ' + id + ' → now ' +
+              updated.status.toUpperCase().replace('_', ' '), 'success');
+            refresh();
+          }
+        };
+        UI.renderFloor(UI.qs('#lot-ground'), 'ground', { onSlot: handler });
+        UI.renderFloor(UI.qs('#lot-first'), 'first', { onSlot: handler });
+        UI.renderLegend(UI.qs('#legend'));
+      }
+
+      /* ---------- notifications ---------- */
+      function renderNotifs() {
+        const list = EP.getNotifications();
+        const box = UI.qs('#notif-list');
+        if (!list.length) {
+          box.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><path d="M1 1l22 22"/></svg></div><p>No notifications</p></div>';
+          return;
+        }
+        box.innerHTML = '';
+        list.forEach(n => {
+          const row = UI.el('div', 'notif ' + n.type + (n.read ? '' : ' unread'));
+          row.innerHTML =
+            '<span class="notif-icon">' + (n.type === 'fault' ? UI.icon('alert', 16) : UI.icon('calendar', 16)) + '</span>' +
+            '<div><p>' + UI.esc(n.message) + '</p><small>' + EP.fmtDate(n.time) + '</small></div>';
+          box.appendChild(row);
+        });
+      }
+      UI.qs('#mark-read').addEventListener('click', () => {
+        EP.markNotificationsRead();
+        renderNotifs();
+        UI.toast('Notifications marked as read', 'info');
+      });
+
+      /* ---------- recent reservations ---------- */
+      function renderRecent() {
+        const res = EP.getReservations().slice(0, 5);
+        const box = UI.qs('#recent-res');
+        box.innerHTML = '';
+        if (!res.length) { box.innerHTML = '<p class="empty">No reservations yet</p>'; return; }
+        res.forEach(r => {
+          const badge = { pending: 'badge-pending', approved: 'badge-approved',
+                          cancelled: 'badge-cancelled', completed: 'badge-completed' }[r.status];
+          box.appendChild(UI.el('div', 'notif reservation',
+            '<span class="notif-icon">' + UI.icon('car', 16) + '</span>' +
+            '<div><p><b>' + UI.esc(r.id) + '</b> · ' + UI.esc(r.name) + ' · Spot ' + r.slot + ' · ' +
+            EP.fmtDate(r.date) + ' ' + EP.fmtTime(r.start) +
+            ' <span class="badge ' + badge + '">' + r.status + '</span></p></div>'));
+        });
+      }
+
+      /* ---------- live sync ---------- */
+      function refresh() {
+        renderStats();
+        renderLots();
+        renderNotifs();
+        renderRecent();
+      }
+      refresh();
+      window.EasyParkLiveRefresh = refresh;
+    })();
+  </script>
+</body>
+</html>

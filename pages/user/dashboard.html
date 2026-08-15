@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | EasyPark User Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="user">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">User Portal · Dashboard</p>
+    <h1 id="welcome-title">Welcome back</h1>
+    <p class="sub" id="today-line"></p>
+  </div>
+
+  <div class="content">
+    <!-- Stat cards -->
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="mt-6 layout-2col">
+      <!-- Live parking layout -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11"/><path d="M3 13h18v6a1 1 0 0 1-1 1h-1"/><path d="M5 13h14l-1-4H6z"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg>Live Parking Layout</h2>
+          <div class="floor-tabs" id="floor-tabs">
+            <button class="floor-tab active" data-floor="ground">Ground Floor</button>
+            <button class="floor-tab" data-floor="first">First Floor</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="live-lot"></div>
+          <div class="mt-4"><div id="legend"></div></div>
+          <p class="text-muted mt-4" style="font-size:.78rem">
+            Tip: tap a green spot to reserve it instantly.
+          </p>
+        </div>
+      </section>
+
+      <!-- Side info -->
+      <aside class="flex flex-col gap-4">
+        <section class="panel">
+          <div class="panel-head"><h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Quick actions</h2></div>
+          <div class="panel-body flex flex-col gap-3">
+            <button class="btn btn-primary w-full" onclick="location.href='reserve.html'">+ New Reservation</button>
+            <button class="btn btn-outline w-full" onclick="location.href='history.html'">My Reservations</button>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>How it works</h2></div>
+          <div class="panel-body">
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:.7rem; padding:0; margin:0; font-size:.84rem; color:var(--text-secondary)">
+              <li><b>1.</b> Pick a free (green) spot and reserve a time.</li>
+              <li><b>2.</b> Get a reservation reference code on screen.</li>
+              <li><b>3.</b> On arrival, scan the QR label on the spot — it opens this website showing that spot's live info.</li>
+              <li><b>4.</b> The LED on the spot turns green/yellow/red to match the on-screen status.</li>
+            </ul>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      let floor = 'ground';
+
+      /* ---------- welcome banner ---------- */
+      const s = EP.getUserSession();
+      UI.qs('#welcome-title').textContent = s
+        ? 'Welcome back, ' + s.name.split(' ')[0]
+        : 'Welcome to EasyPark';
+      UI.qs('#today-line').textContent =
+        new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+        ' · Live data from the prototype sensor network';
+
+      /* ---------- stat cards ---------- */
+      function renderStats() {
+        const st = EP.getStats();
+        const cards = [
+          UI.statCard('Total spots', st.total, 'grid', 'blue', 'prototype model'),
+          UI.statCard('Available', st.available, 'check', 'green', 'reserve now'),
+          UI.statCard('Occupied', st.occupied, 'car', 'red', 'sensor detected'),
+          UI.statCard('Reserved', st.reserved, 'calendar', 'amber', 'approved today'),
+          UI.statCard('Maintenance', st.maintenance, 'gear', 'gray', 'fault reported')
+        ];
+        const grid = UI.qs('#stat-grid');
+        grid.innerHTML = '';
+        cards.forEach(c => grid.appendChild(c));
+      }
+
+      /* ---------- live layout ---------- */
+      function renderLot() {
+        UI.renderFloor(UI.qs('#live-lot'), floor, {
+          onSlot: (id, slot) => {
+            if (slot.status === 'available') {
+              location.href = 'reserve.html?slot=' + id;
+            } else if (slot.status === 'reserved') {
+              const r = slot.reservation;
+              UI.openModal('Spot ' + id + ' — Reserved',
+                '<div class="detail-list">' +
+                  '<div class="detail-item"><small>Holder</small><b>' + UI.esc(r.name) + '</b></div>' +
+                  '<div class="detail-item"><small>Vehicle</small><b>' + UI.esc(r.vehicle) + '</b></div>' +
+                  '<div class="detail-item"><small>Time</small><b>' + EP.fmtDate(r.date) + ' · ' + EP.fmtTime(r.start) + ' · ' + r.duration + 'h</b></div>' +
+                '</div>');
+            } else if (slot.status === 'occupied') {
+              UI.toast('Spot ' + id + ' is currently occupied', 'error');
+            } else {
+              UI.toast('Spot ' + id + ' is under maintenance', 'warning');
+            }
+          }
+        });
+      }
+
+      /* ---------- floor tabs ---------- */
+      UI.qsa('.floor-tab').forEach(tab => tab.addEventListener('click', () => {
+        UI.qsa('.floor-tab').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        floor = tab.dataset.floor;
+        renderLot();
+      }));
+
+      /* ---------- live sync ---------- */
+      function refresh() {
+        renderStats();
+        renderLot();
+        UI.renderLegend(UI.qs('#legend'));
+      }
+      refresh();
+      window.EasyParkLiveRefresh = refresh;
+    })();
+  </script>
+</body>
+</html>

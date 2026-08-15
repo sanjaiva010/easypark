@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservations | EasyPark Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="admin">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">Admin Portal · Reservation Management</p>
+    <h1><svg class="head-ico big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Reservation Management</h1>
+    <p class="sub">Search, filter, approve, modify, cancel or complete bookings.</p>
+  </div>
+
+  <div class="content">
+    <div class="panel">
+      <div class="panel-body">
+        <!-- Filters -->
+        <div class="filter-bar">
+          <input class="form-input" id="f-q" placeholder="Search ID, name, vehicle, phone…">
+          <select class="form-select" id="f-slot">
+            <option value="">All spots</option>
+            <option value="101">101</option><option value="102">102</option>
+            <option value="103">103</option><option value="104">104</option>
+            <option value="201">201</option><option value="202">202</option>
+            <option value="203">203</option><option value="204">204</option>
+          </select>
+          <select class="form-select" id="f-floor">
+            <option value="">Both levels</option>
+            <option value="ground">Ground Floor</option>
+            <option value="first">First Floor</option>
+          </select>
+          <input class="form-input" type="date" id="f-date" title="Filter by date">
+          <select class="form-select" id="f-status">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="clear-filters">Clear</button>
+          <span class="muted" id="count-line" style="margin-left:auto"></span>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Reservation</th>
+                <th>User</th>
+                <th>Vehicle</th>
+                <th>Spot</th>
+                <th>Date &amp; Time</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="res-rows"></tbody>
+          </table>
+        </div>
+        <div id="res-empty"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      if (!UI.requireAdmin()) return;
+
+      const BADGE = { pending: 'badge-pending', approved: 'badge-approved',
+                      cancelled: 'badge-cancelled', completed: 'badge-completed' };
+
+      function currentFilter() {
+        return {
+          q: UI.qs('#f-q').value.trim(),
+          slot: UI.qs('#f-slot').value,
+          floor: UI.qs('#f-floor').value,
+          date: UI.qs('#f-date').value,
+          status: UI.qs('#f-status').value
+        };
+      }
+
+      function render() {
+        const list = EP.getReservations(currentFilter());
+        UI.qs('#count-line').textContent = list.length + ' reservation' + (list.length === 1 ? '' : 's');
+        const rows = UI.qs('#res-rows');
+        const empty = UI.qs('#res-empty');
+        rows.innerHTML = '';
+        empty.innerHTML = '';
+
+        if (!list.length) {
+          empty.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><p>No reservations match the filters.</p></div>';
+          return;
+        }
+
+        list.forEach(r => {
+          const tr = document.createElement('tr');
+          const meta = EP.SLOT_META.find(m => m.id === r.slot) || {};
+          let actions = '';
+
+          if (r.status === 'pending') {
+            actions += '<button class="btn btn-success btn-xs" data-a="approve" data-id="' + r.id + '">Approve</button>';
+            actions += '<button class="btn btn-outline btn-xs" data-a="modify" data-id="' + r.id + '">Modify</button>';
+            actions += '<button class="btn btn-danger btn-xs" data-a="cancel" data-id="' + r.id + '">Cancel</button>';
+          } else if (r.status === 'approved') {
+            actions += '<button class="btn btn-success btn-xs" data-a="complete" data-id="' + r.id + '">Complete</button>';
+            actions += '<button class="btn btn-outline btn-xs" data-a="modify" data-id="' + r.id + '">Modify</button>';
+            actions += '<button class="btn btn-danger btn-xs" data-a="cancel" data-id="' + r.id + '">Cancel</button>';
+          } else {
+            actions = '<span class="text-muted" style="font-size:.75rem">—</span>';
+          }
+
+          tr.innerHTML =
+            '<td><b class="mono">' + UI.esc(r.id) + '</b></td>' +
+            '<td>' + UI.esc(r.name) + '<br><small class="text-muted">' + UI.esc(r.phone) + '</small></td>' +
+            '<td class="mono" style="font-size:.82rem">' + UI.esc(r.vehicle) + '</td>' +
+            '<td>' + UI.esc(r.slot) + '<br><small class="text-muted">' + meta.level + '</small></td>' +
+            '<td>' + EP.fmtDate(r.date) + '<br><small class="text-muted">' + EP.fmtTime(r.start) + '</small></td>' +
+            '<td>' + r.duration + 'h</td>' +
+            '<td><span class="badge ' + BADGE[r.status] + '">' + r.status + '</span></td>' +
+            '<td><div class="row-actions">' + actions + '</div></td>';
+
+          rows.appendChild(tr);
+        });
+
+        // Wire row actions.
+        UI.qsa('[data-a]', rows).forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id, action = btn.dataset.a;
+            const r = EP.raw().reservations.find(x => x.id === id);
+            if (action === 'approve') {
+              const res = EP.approveReservation(id);
+              if (res && res.error) UI.toast(res.error, 'error');
+              else { UI.toast(id + ' approved', 'success'); render(); }
+            } else if (action === 'complete') {
+              EP.completeReservation(id);
+              UI.toast(id + ' marked completed', 'success');
+              render();
+            } else if (action === 'cancel') {
+              UI.confirmModal('Cancel ' + id + ' (' + r.name + ', spot ' + r.slot + ')?',
+                () => { EP.cancelReservation(id, 'admin'); UI.toast(id + ' cancelled', 'success'); render(); },
+                { title: 'Cancel reservation' });
+            } else if (action === 'modify') {
+              openModify(r);
+            }
+          });
+        });
+      }
+
+      /* ---------- modify modal ---------- */
+      function openModify(r) {
+        const m = UI.openModal('Modify ' + r.id, '', '');
+
+        const slots = EP.SLOT_META.map(s =>
+          '<option value="' + s.id + '"' + (s.id === r.slot ? ' selected' : '') + '>' +
+          s.id + ' — ' + s.level + '</option>').join('');
+
+        m.body.innerHTML =
+          '<div class="form-group"><label class="form-label">Spot</label>' +
+          '<select class="form-select" id="mod-slot">' + slots + '</select></div>' +
+          '<div class="form-row">' +
+            '<div class="form-group"><label class="form-label">Date</label>' +
+            '<input class="form-input" type="date" id="mod-date" value="' + r.date + '" min="' + EP.todayISO() + '"></div>' +
+            '<div class="form-group"><label class="form-label">Start time</label>' +
+            '<input class="form-input" type="time" id="mod-start" value="' + r.start + '"></div>' +
+            '<div class="form-group"><label class="form-label">Duration (h)</label>' +
+            '<select class="form-select" id="mod-dur">' +
+              [1,2,3,4,5,6].map(h => '<option value="' + h + '"' + (h === r.duration ? ' selected' : '') + '>' + h + 'h</option>').join('') +
+            '</select></div>' +
+          '</div>';
+        m.body.insertAdjacentHTML('beforeend',
+          '<div class="modal-footer" style="padding:1rem 0 0; border-top:1px solid rgba(2,31,148,.08)">' +
+          '<button class="btn btn-secondary btn-sm" id="mod-close">Close</button>' +
+          '<button class="btn btn-primary btn-sm" id="mod-save">Save changes</button></div>');
+
+        UI.qs('#mod-close', m.overlay).onclick = m.close;
+        UI.qs('#mod-save', m.overlay).onclick = () => {
+          const patch = {
+            slot: UI.qs('#mod-slot', m.overlay).value,
+            date: UI.qs('#mod-date', m.overlay).value,
+            start: UI.qs('#mod-start', m.overlay).value,
+            duration: parseInt(UI.qs('#mod-dur', m.overlay).value, 10)
+          };
+          const res = EP.updateReservation(r.id, patch);
+          if (res && res.error) { UI.toast(res.error, 'error'); return; }
+          UI.toast(r.id + ' updated', 'success');
+          m.close();
+          render();
+        };
+      }
+
+      /* ---------- filters ---------- */
+      ['f-q', 'f-slot', 'f-floor', 'f-date', 'f-status'].forEach(id => {
+        UI.qs('#' + id).addEventListener('input', render);
+      });
+      UI.qs('#clear-filters').addEventListener('click', () => {
+        ['f-q', 'f-slot', 'f-floor', 'f-date', 'f-status'].forEach(id => {
+          const el = UI.qs('#' + id);
+          if (el.type === 'date') el.value = '';
+          else el.value = '';
+        });
+        render();
+      });
+
+      render();
+      window.EasyParkLiveRefresh = render;
+    })();
+  </script>
+</body>
+</html>

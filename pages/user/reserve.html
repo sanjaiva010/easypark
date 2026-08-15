@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve a Spot | EasyPark User Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="user">
+
+  <div id="nav-slot"></div>
+
+  <div class="page-head">
+    <p class="crumb">User Portal · Reserve a Spot</p>
+    <h1>Reserve a Parking Spot</h1>
+    <p class="sub">Book your spot ahead of time — the physical LED and QR tag on the spot confirm your booking.</p>
+  </div>
+
+  <div class="content content-narrow">
+    <div class="panel">
+      <form id="reserve-form" novalidate>
+        <div class="panel-body">
+
+          <!-- Visitor details -->
+          <h4 class="mb-4">Your details</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="f-name">Full name</label>
+              <input class="form-input" id="f-name" placeholder="e.g. Alex Morgan" autocomplete="name">
+              <span class="form-error" id="e-name">Please enter your name</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f-vehicle">Vehicle number</label>
+              <input class="form-input" id="f-vehicle" placeholder="e.g. MH 12 AB 3456" autocomplete="off">
+              <span class="form-error" id="e-vehicle">Please enter your vehicle number</span>
+            </div>
+          </div>
+          <div class="form-group" style="max-width:340px">
+            <label class="form-label" for="f-phone">Phone number</label>
+            <input class="form-input" id="f-phone" type="tel" placeholder="e.g. 98200 11223" autocomplete="tel">
+            <span class="form-error" id="e-phone">Please enter a valid phone number</span>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Spot selection -->
+          <h4 class="mb-2">Choose your spot</h4>
+          <div class="floor-tabs mb-4" id="floor-tabs">
+            <button class="floor-tab active" type="button" data-floor="ground">Ground Floor</button>
+            <button class="floor-tab" type="button" data-floor="first">First Floor</button>
+          </div>
+          <div class="form-group">
+            <div id="slot-picker" class="slot-picker"></div>
+            <span class="form-error" id="e-slot">Please select an available spot</span>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Timing -->
+          <h4 class="mb-4">When</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="f-date">Reservation date</label>
+              <input class="form-input" type="date" id="f-date">
+              <span class="form-error" id="e-date">Pick a date (today or later)</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f-start">Start time</label>
+              <input class="form-input" type="time" id="f-start">
+              <span class="form-error" id="e-start">Please choose a start time</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f-duration">Duration (hours)</label>
+              <select class="form-select" id="f-duration">
+                <option value="1">1 hour</option>
+                <option value="2" selected>2 hours</option>
+                <option value="3">3 hours</option>
+                <option value="4">4 hours</option>
+                <option value="5">5 hours</option>
+                <option value="6">6 hours</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-footer" style="padding:1.2rem 1.5rem; border-top:1px solid rgba(2,31,148,.08); display:flex; gap:1rem; align-items:center; flex-wrap:wrap">
+          <button type="submit" class="btn btn-primary btn-lg">Confirm Reservation</button>
+          <span class="text-muted" style="font-size:.8rem">You can cancel anytime before the reservation starts.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      let floor = 'ground';
+      let selectedSlot = null;
+
+      // Pre-fill from query (?slot=101) and from the signed-in session.
+      const qsParams = new URLSearchParams(location.search);
+      const preSlot = qsParams.get('slot');
+      const session = EP.getUserSession();
+      const setName = v => { UI.qs('#f-name').value = v; };
+      const setPhone = v => { UI.qs('#f-phone').value = v; };
+      if (session) { setName(session.name); setPhone(session.phone); }
+
+      // Defaults: date = today, start = next half-hour.
+      const d = new Date();
+      UI.qs('#f-date').min = EP.todayISO();
+      UI.qs('#f-date').value = EP.todayISO();
+      const next = new Date(d.getTime() + 30 * 60 * 1000);
+      UI.qs('#f-start').value = String(next.getHours()).padStart(2, '0') + ':' + String(next.getMinutes()).padStart(2, '0');
+
+      /* ---------- slot picker ---------- */
+      function renderPicker() {
+        const slots = EP.getSlots(floor);
+        const box = UI.qs('#slot-picker');
+        box.innerHTML = '';
+        slots.forEach(s => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'slot-option ' + s.status + (selectedSlot === s.id ? ' selected' : '');
+          if (s.status !== 'available') btn.disabled = true;
+          btn.innerHTML =
+            '<b>' + s.id + '</b><span>' + EP.SLOT_STATUSES[s.status].label + '</span>';
+          btn.addEventListener('click', () => {
+            selectedSlot = s.id;
+            renderPicker();
+          });
+          box.appendChild(btn);
+        });
+      }
+
+      UI.qsa('.floor-tab').forEach(tab => tab.addEventListener('click', () => {
+        UI.qsa('.floor-tab').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        floor = tab.dataset.floor;
+        selectedSlot = null;
+        renderPicker();
+      }));
+
+      renderPicker();
+      if (preSlot) {
+        const meta = EP.SLOT_META.find(m => m.id === preSlot);
+        if (meta) {
+          floor = meta.floor;
+          UI.qsa('.floor-tab').forEach(x => x.classList.toggle('active', x.dataset.floor === floor));
+          selectedSlot = preSlot;
+          renderPicker();
+        }
+      }
+
+      /* ---------- validation + submit ---------- */
+      function err(id, show) { UI.qs(id).classList.toggle('visible', show); }
+
+      UI.qs('#reserve-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const name = UI.qs('#f-name').value.trim();
+        const vehicle = UI.qs('#f-vehicle').value.trim();
+        const phone = UI.qs('#f-phone').value.trim();
+        const date = UI.qs('#f-date').value;
+        const start = UI.qs('#f-start').value;
+        const duration = parseInt(UI.qs('#f-duration').value, 10);
+
+        let ok = true;
+        err('#e-name', !name); if (!name) ok = false;
+        err('#e-vehicle', !vehicle); if (!vehicle) ok = false;
+        err('#e-phone', !phone || phone.replace(/\D/g, '').length < 10); if (!phone || phone.replace(/\D/g, '').length < 10) ok = false;
+        err('#e-slot', !selectedSlot); if (!selectedSlot) ok = false;
+        err('#e-date', !date || date < EP.todayISO()); if (!date || date < EP.todayISO()) ok = false;
+        err('#e-start', !start); if (!start) ok = false;
+        if (!ok) { UI.toast('Please fix the highlighted fields', 'error'); return; }
+
+        const res = EP.createReservation({
+          name, vehicle, phone, floor, slot: selectedSlot, date, start, duration
+        });
+        if (!res.ok) { UI.toast(res.message, 'error'); return; }
+
+        // Persist the guest details so the history page can find the booking.
+        if (!session) EP.setGuestSession(name, phone);
+        UI.toast('Reservation created!', 'success');
+        location.href = 'confirmation.html?id=' + res.reservation.id;
+      });
+    })();
+  </script>
+</body>
+</html>

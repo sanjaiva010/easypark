@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservation Confirmed | EasyPark User Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body data-portal="user">
+
+  <div id="nav-slot"></div>
+
+  <div class="confirm-wrap">
+    <div id="confirm-content"></div>
+  </div>
+
+  <script src="../../js/db.js"></script>
+  <script src="../../js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+      const id = new URLSearchParams(location.search).get('id');
+      const res = id ? EP.raw().reservations.find(r => r.id === id) : null;
+
+      const box = UI.qs('#confirm-content');
+      if (!res) {
+        box.innerHTML =
+          '<div class="panel"><div class="panel-body empty">' +
+          '<div class="empty-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><p>No reservation found.</p>' +
+          '<button class="btn btn-primary mt-4" onclick="location.href=\'reserve.html\'">Reserve a Spot</button>' +
+          '</div></div>';
+        return;
+      }
+
+      box.innerHTML =
+        '<div class="panel mb-6" style="text-align:center; padding:2.4rem 1.5rem">' +
+          '<div class="big-check"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+          '<h2 style="margin:.4rem 0 .3rem">Reservation Requested</h2>' +
+          '<p class="text-muted" style="margin:0">Pending administrator approval — you will see it in your history.</p>' +
+        '</div>' +
+
+        '<div class="panel mb-6">' +
+          '<div class="panel-head"><h2>Your reservation reference</h2></div>' +
+          '<div class="panel-body">' +
+            '<div class="ref-code">' +
+              '<p class="text-muted" style="margin:0 0 .4rem; font-size:.78rem; text-transform:uppercase; letter-spacing:.1em">Reference code</p>' +
+              '<div class="code">' + UI.esc(res.id) + '</div>' +
+              '<p class="text-muted mt-4" style="margin-bottom:0; font-size:.82rem; line-height:1.5">' +
+                'Keep this code handy. It is used by the admin console to track your booking.<br>' +
+                'No QR is shown here — the QR lives on the physical spot you reserved.</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="panel mb-6">' +
+          '<div class="panel-head"><h2>Booking summary</h2></div>' +
+          '<div class="panel-body">' +
+            '<div class="detail-list">' +
+              '<div class="detail-item"><small>Name</small><b>' + UI.esc(res.name) + '</b></div>' +
+              '<div class="detail-item"><small>Vehicle</small><b>' + UI.esc(res.vehicle) + '</b></div>' +
+              '<div class="detail-item"><small>Phone</small><b>' + UI.esc(res.phone) + '</b></div>' +
+              '<div class="detail-item"><small>Level</small><b>' + EP.SLOT_META.find(m => m.id === res.slot).level + '</b></div>' +
+              '<div class="detail-item"><small>Spot</small><b>' + res.slot + '</b></div>' +
+              '<div class="detail-item"><small>Date</small><b>' + EP.fmtDate(res.date) + '</b></div>' +
+              '<div class="detail-item"><small>Start</small><b>' + EP.fmtTime(res.start) + '</b></div>' +
+              '<div class="detail-item"><small>Duration</small><b>' + res.duration + ' hour' + (res.duration > 1 ? 's' : '') + '</b></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="panel mb-6" style="background:linear-gradient(135deg,rgba(2,31,148,.04),rgba(2,31,148,.01))">' +
+          '<div class="panel-body">' +
+            '<h4 style="margin-bottom:.4rem"><svg class="head-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>When you reach the spot</h4>' +
+            '<p style="font-size:.9rem; margin:0 0 .8rem">Scan the QR label stuck on spot <b>' + res.slot + '</b> with your phone camera. ' +
+              'It opens this website directly on that spot\u2019s live page, showing its current status and your booking.</p>' +
+            '<a class="btn btn-outline" href="../spot.html?id=' + res.slot + '">Preview the spot page (what scanning opens)</a>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="flex gap-4" style="flex-wrap:wrap">' +
+          '<button class="btn btn-primary" onclick="location.href=\'history.html\'">View My Reservations</button>' +
+          '<button class="btn btn-secondary" onclick="location.href=\'reserve.html\'">Make Another Reservation</button>' +
+          '<button class="btn btn-ghost" onclick="location.href=\'dashboard.html\'">Back to Dashboard</button>' +
+        '</div>';
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EasyPark — Smart Parking Reservation & Management System | 2nd Year Engineering Clinics Project">
+  <title>EasyPark | Smart Parking Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body data-portal="">
+
+  <a href="#portals" class="skip-link">Skip to portals</a>
+
+  <!-- ================= HERO + PORTAL SELECTION ================= -->
+  <section class="hero" aria-label="EasyPark welcome">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="hero-eyebrow"><span class="live-dot"></span>2nd Year Engineering Clinics Project</span>
+        <h1 class="script-text">EasyPark</h1>
+        <h2>Smart Parking Reservation &amp; Management System</h2>
+        <p class="lede">
+          A working prototype demonstrating live parking-space detection (ESP32 + IR sensors),
+          QR-based spot identification and fully digital reservation &amp; maintenance workflows.
+        </p>
+
+        <!-- ONLY navigation here: choose your portal. The remaining options
+             (dashboard, reserve, history / reservations, maintenance, analytics)
+             appear once a portal is opened. -->
+        <div class="portal-options" id="portals" role="list" aria-label="Choose a portal">
+          <button class="portal-btn" id="btn-user-portal" role="listitem" aria-label="Open User Portal">
+            <span class="p-icon p-user">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span>
+              <b>User Portal</b>
+              <small>Reserve a spot, check live availability, manage your bookings.</small>
+            </span>
+            <span class="p-arrow">→</span>
+          </button>
+          <button class="portal-btn" id="btn-admin-portal" role="listitem" aria-label="Open Admin Portal">
+            <span class="p-icon p-admin">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span>
+              <b>Admin Portal</b>
+              <small>Control-room console: monitor, approve, maintain &amp; analyse.</small>
+            </span>
+            <span class="p-arrow">→</span>
+          </button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat"><b id="stat-total">—</b><span>Demo spots</span></div>
+          <div class="hero-stat"><b id="stat-avail">—</b><span>Available now</span></div>
+          <div class="hero-stat"><b id="stat-occ">—</b><span>Occupied now</span></div>
+        </div>
+      </div>
+
+      <!-- Live prototype visual (rendered from the same data the portals use) -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="flex items-center justify-between px-4 mb-2">
+          <span class="chip"><span class="live-dot"></span>Live prototype view</span>
+          <span class="text-muted" style="font-size:.72rem">Tap a spot inside any portal</span>
+        </div>
+        <div id="hero-lot-ground" style="margin-top:.4rem"></div>
+        <div id="hero-lot-first"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="features" aria-label="Features">
+    <div class="container">
+      <div class="section-title">
+        <p class="script-text">What EasyPark does</p>
+        <h2>Built like the real thing</h2>
+        <p>Every screen in this prototype is backed by the same mock data layer, so it is ready to be
+           connected to a real database and the ESP32 sensor network.</p>
+      </div>
+      <div class="grid grid-auto">
+        <article class="feature-card">
+          <div class="f-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3>Real-time slot awareness</h3>
+          <p>Colour-coded spots refresh instantly: green available, red occupied, amber reserved, grey under maintenance.</p>
+        </article>
+        <article class="feature-card">
+          <div class="f-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <h3>QR at the parking spot</h3>
+          <p>Each physical spot carries a QR label. Scanning it opens the spot's live page in this website — no QR codes live on the site itself.</p>
+        </article>
+        <article class="feature-card">
+          <div class="f-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <h3>Maintenance console</h3>
+          <p>Admins change the fault status of IR sensors, QR tags, LED strips and ESP32 units, and keep a full maintenance log.</p>
+        </article>
+        <article class="feature-card">
+          <div class="f-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          </div>
+          <h3>Analytics</h3>
+          <p>Occupancy, reservations per day, busiest spots and maintenance frequency — all charted live from stored data.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TECH ================= -->
+  <section class="tech-strip" aria-label="Technology stack">
+    <div class="container">
+      <div class="section-title">
+        <p class="script-text">The prototype hardware</p>
+        <h2>What powers the model</h2>
+      </div>
+      <div class="grid grid-2 grid-auto">
+        <div class="tech-item"><span class="t-code">ESP32</span><p>Wireless controller per spot — heartbeat &amp; sensor data.</p></div>
+        <div class="tech-item"><span class="t-code">TCRT5000</span><p>Reflective IR sensor detects a parked vehicle.</p></div>
+        <div class="tech-item"><span class="t-code">QR Tag</span><p>Stuck on each spot; scanned to open that spot's page here.</p></div>
+        <div class="tech-item"><span class="t-code">LED Strip</span><p>Physical status lights mirror the on-screen colour coding.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <span class="script-text">EasyPark</span>
+      <span>Smart Parking Reservation &amp; Management System — Engineering Clinics, 2nd Year</span>
+      <span>Prototype demo · <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="js/db.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const UI = window.UI, EP = window.EasyPark;
+
+      // Wire the two portal options — the only entry points on this page.
+      UI.qs('#btn-user-portal').addEventListener('click', () => {
+        location.href = 'pages/user/dashboard.html';
+      });
+      UI.qs('#btn-admin-portal').addEventListener('click', () => {
+        location.href = 'pages/admin/login.html';
+      });
+
+      // Hero mini-lots (read-only render of both levels).
+      UI.renderFloor(UI.qs('#hero-lot-ground'), 'ground');
+      UI.renderFloor(UI.qs('#hero-lot-first'), 'first');
+
+      // Live counters.
+      const render = () => {
+        const s = EP.getStats();
+        UI.qs('#stat-total').textContent = s.total;
+        UI.qs('#stat-avail').textContent = s.available;
+        UI.qs('#stat-occ').textContent = s.occupied;
+      };
+      render();
+      window.EasyParkLiveRefresh = render;
+    })();
+  </script>
+</body>
+</html>
