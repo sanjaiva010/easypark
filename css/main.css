@@ -52,6 +52,7 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -62,6 +63,8 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 /* Typography */
@@ -716,11 +719,9 @@ a:hover { color: var(--imperial-blue-light); }
   display: flex; align-items: center; gap: 1rem;
 }
 .brand { display: flex; align-items: center; gap: 0.6rem; color: #fff !important; }
-.brand-mark {
-  width: 40px; height: 40px; border-radius: 11px;
-  background: #fff; color: var(--imperial-blue);
-  display: grid; place-items: center; font-weight: 800; font-size: 0.95rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,.18);
+.brand-logo {
+  width: 40px; height: 40px; flex-shrink: 0;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.25));
 }
 .brand-name { font-family: var(--font-script); font-style: italic; font-size: 1.75rem; line-height: 1; }
 .brand-tag {
@@ -890,7 +891,7 @@ a:hover { color: var(--imperial-blue-light); }
 /* ------------------------------------------------------------------
    Live parking lot (CSS-3D isometric)
 ------------------------------------------------------------------ */
-.lot-scene { perspective: 1500px; padding: 1.4rem 1rem .6rem; overflow-x: auto; overflow-y: visible; }
+.lot-scene { perspective: 1500px; padding: 1.4rem 1rem .6rem; overflow-x: hidden; overflow-y: visible; }
 .lot-floor {
   display: flex; gap: 14px; align-items: flex-start; width: max-content; margin: 0 auto;
   padding: 30px 32px 46px; position: relative;

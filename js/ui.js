@@ -182,7 +182,10 @@
     header.innerHTML =
       '<div class="app-nav-inner">' +
         '<a class="brand" href="' + (portal === 'admin' ? '../../index.html' : 'dashboard.html') + '">' +
-          '<span class="brand-mark">EP</span>' +
+          '<svg class="brand-logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '<rect width="32" height="32" rx="8" fill="currentColor"/>' +
+            '<path d="M8 16 L14 22 L24 10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg>' +
           '<span class="brand-name script-text">EasyPark</span>' +
           '<span class="brand-tag">' + (portal === 'admin' ? 'Management Console' : 'Parking Portal') + '</span>' +
         '</a>' +
@@ -369,19 +372,14 @@
     if (!scene) return;
     const floorEl = scene.querySelector('.lot-floor');
     if (!floorEl) return;
+    const baseTransform = 'rotateX(54deg) rotateZ(-7deg)';
     const fit = () => {
       const avail = scene.clientWidth;
       const need = floorEl.scrollWidth;
       const s = (avail > 0 && need > avail) ? avail / need : 1;
-      if (s < 1) {
-        floorEl.style.transform = 'rotateX(54deg) rotateZ(-7deg) scale(' + s + ')';
-        floorEl.style.transformOrigin = '50% 0%';
-        scene.style.overflowX = 'hidden';
-      } else {
-        floorEl.style.transform = '';
-        floorEl.style.transformOrigin = '';
-        scene.style.overflowX = 'auto';
-      }
+      floorEl.style.transform = baseTransform + (s < 1 ? ' scale(' + s + ')' : '');
+      floorEl.style.transformOrigin = '50% 0%';
+      scene.style.overflowX = 'hidden';
     };
     fit();
     window.addEventListener('resize', fit);
