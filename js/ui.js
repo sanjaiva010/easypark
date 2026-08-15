@@ -181,10 +181,11 @@
     const header = el('header', 'app-nav');
     header.innerHTML =
       '<div class="app-nav-inner">' +
-        '<a class="brand" href="' + (portal === 'admin' ? '../../index.html' : 'dashboard.html') + '">' +
+        '<a class="brand" href="' + (portal === 'admin' || portal === 'user' ? '../../index.html' : 'dashboard.html') + '">' +
           '<svg class="brand-logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg">' +
             '<rect width="32" height="32" rx="8" fill="currentColor"/>' +
-            '<path d="M8 16 L14 22 L24 10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M9 16 L13 20 L23 10" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="23" cy="10" r="3" fill="white"/>' +
           '</svg>' +
           '<span class="brand-name script-text">EasyPark</span>' +
           '<span class="brand-tag">' + (portal === 'admin' ? 'Management Console' : 'Parking Portal') + '</span>' +
