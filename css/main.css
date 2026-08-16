@@ -768,6 +768,10 @@ a:hover { color: var(--imperial-blue-light); }
   color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase; padding: .45rem .9rem; border-radius: 999px; margin-bottom: 1.1rem;
 }
+.hero-logo {
+  display: block; width: 72px; height: 72px; margin-bottom: 1.1rem;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,.35));
+}
 .hero .script-text { color: #fff; font-size: clamp(2.7rem, 6vw, 4.5rem); line-height: 1.05; }
 .hero h2 { color: #fff; font-size: clamp(1.15rem, 2.4vw, 1.7rem); font-weight: 600; margin: .4rem 0 1rem; }
 .hero p.lede { color: rgba(255,255,255,.82); max-width: 34rem; font-size: .98rem; }
@@ -846,6 +850,11 @@ a:hover { color: var(--imperial-blue-light); }
 }
 .site-footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; color: var(--text-muted); font-size: .8rem; }
 .site-footer .script-text { color: var(--imperial-blue); font-size: 1.35rem; }
+.site-footer .container > * { display: inline-flex; align-items: center; gap: .5rem; }
+.footer-logo {
+  width: 28px; height: 28px;
+  filter: drop-shadow(0 4px 10px rgba(2,31,148,.28));
+}
 
 /* ------------------------------------------------------------------
    Page scaffolding (inner pages)

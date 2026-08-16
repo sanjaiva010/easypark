@@ -182,10 +182,14 @@
     header.innerHTML =
       '<div class="app-nav-inner">' +
         '<a class="brand" href="' + (portal === 'admin' || portal === 'user' ? '../../index.html' : 'dashboard.html') + '">' +
-          '<svg class="brand-logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-            '<rect width="32" height="32" rx="8" fill="currentColor"/>' +
-            '<path d="M9 16 L13 20 L23 10" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
-            '<circle cx="23" cy="10" r="3" fill="white"/>' +
+          '<svg class="brand-logo" viewBox="0 0 48 48" width="40" height="40" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '<defs><linearGradient id="epTile" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">' +
+              '<stop stop-color="#0B3BFF"/><stop offset="1" stop-color="#021F94"/>' +
+            '</linearGradient></defs>' +
+            '<rect x="1.5" y="1.5" width="45" height="45" rx="12" fill="url(#epTile)"/>' +
+            '<path d="M14.5 38.5V14h9.6a8 8 0 0 1 0 16H14.5" fill="none" stroke="#FFFFFF" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="35" cy="35" r="8.4" fill="#10B981"/>' +
+            '<path d="M30.8 34.6l3 3 6.2-6.4" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
           '</svg>' +
           '<span class="brand-name script-text">EasyPark</span>' +
           '<span class="brand-tag">' + (portal === 'admin' ? 'Management Console' : 'Parking Portal') + '</span>' +
