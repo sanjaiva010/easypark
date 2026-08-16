@@ -1030,7 +1030,12 @@ a:hover { color: var(--imperial-blue-light); }
 .chart-card { background: #fff; border: 1px solid rgba(2,31,148,.06); border-radius: 18px; padding: 1.4rem; box-shadow: var(--shadow-md); }
 .chart-card h3 { font-size: 1rem; margin-bottom: .2rem; }
 .chart-card .sub { color: var(--text-muted); font-size: .8rem; margin-bottom: 1.1rem; }
-.chart-legend { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; margin-top: 1rem; }
+.chart-card svg { display: block; }
+.chart-card > svg,
+.chart-card svg.chart-donut { max-width: 100%; height: auto; }
+#chart-occ svg { max-width: 240px; margin: 0 auto; }
+#chart-occ { display: flex; flex-direction: column; align-items: center; }
+.chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1.2rem; margin-top: 1rem; }
 .chart-legend-item { font-size: .78rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: .4rem; }
 .chart-legend-item i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .hbar-row { display: grid; grid-template-columns: 72px 1fr 36px; gap: .6rem; align-items: center; margin-bottom: .75rem; }
@@ -1050,6 +1055,11 @@ a:hover { color: var(--imperial-blue-light); }
 .login-card {
   background: #fff; border-radius: 26px; width: 100%; max-width: 430px;
   padding: 2.5rem 2.3rem; box-shadow: 0 44px 90px rgba(0,0,0,.4);
+}
+.login-card .login-logo {
+  display: block; margin: 0 auto 1rem;
+  width: 72px; height: 72px;
+  filter: drop-shadow(0 10px 24px rgba(2,31,148,.3));
 }
 .login-card .script-text { color: var(--imperial-blue); font-size: 2.2rem; text-align: center; }
 .login-card .login-sub { text-align: center; color: var(--text-muted); font-size: .85rem; margin-bottom: 1.6rem; }
@@ -1107,6 +1117,19 @@ a:hover { color: var(--imperial-blue-light); }
   .spot-car svg { width: 104px; height: 104px; }
   .spot-id { font-size: 1.1rem; }
   .lot-scene { padding-left: .4rem; padding-right: .4rem; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .page-head, .content { padding-left: 1rem; padding-right: 1rem; }
+  .page-head h1 { font-size: 1.4rem; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .hbar-row { grid-template-columns: 58px 1fr 30px; gap: .45rem; }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .chart-card { padding: 1.1rem; }
+  .chart-card h3 { font-size: .95rem; }
+  #chart-occ svg { max-width: 200px; }
+  .hbar-label { font-size: .72rem; }
 }
 
 /* Reserve form slot picker */

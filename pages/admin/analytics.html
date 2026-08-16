@@ -121,10 +121,14 @@
         })), { height: 260, color: C.blue });
 
         // 4. Most reserved spots.
-        UI.hbars(UI.qs('#chart-top-slots'), EP.mostReservedSlots(8), { color: C.blue });
+        UI.hbars(UI.qs('#chart-top-slots'),
+          EP.mostReservedSlots(8).map(d => ({ label: 'Spot ' + d.slot, value: d.count })),
+          { color: C.blue });
 
         // 5. Maintenance frequency by component.
-        UI.hbars(UI.qs('#chart-maint'), EP.maintenanceFrequency(), { color: C.red });
+        UI.hbars(UI.qs('#chart-maint'),
+          EP.maintenanceFrequency().map(d => ({ label: d.label, value: d.count })),
+          { color: C.red });
       }
 
       function refresh() {
